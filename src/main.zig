@@ -1,18 +1,28 @@
 const std = @import("std");
-
-const c = @cImport({
-    @cInclude("fuurin/c/cbroker.h");
-    @cInclude("fuurin/c/cworker.h");
-});
+const print = @import("std").debug.print;
+const c = @import("c.zig");
+const Clock = @import("Clock.zig");
 
 pub fn main() anyerror!void {
-    std.log.info("Starting sim server...", .{});
+    print("Starting clock server...\n", .{});
 
     var idb: c.CUuid = c.CUuid_createRandomUuid();
     var idw: c.CUuid = c.CUuid_createRandomUuid();
 
-    var b: *c.CBroker = c.CBroker_new(&idb, "srv_broker") orelse return;
-    var w: *c.CWorker = c.CWorker_new(&idw, 0, "srv_worker") orelse return;
+    var b: *c.CBroker = try c.CBroker_new(&idb, "clk_broker") orelse error.WorkerCreateError;
+    var w: *c.CWorker = try c.CWorker_new(&idw, 0, "clk_worker") orelse error.BrokerCreateError;
+
+    c.CWorker_addTopicsNames(w, "/clk/set");
+
+    c.CBroker_start(b);
+    c.CWorker_start(w);
+
+    var clk = Clock{
+        .tickMs = 1000,
+        .tickCount = 0,
+    };
+
+    try clk.serveTicks(w);
 
     c.CWorker_stop(w);
     c.CWorker_wait(w);
@@ -21,4 +31,9 @@ pub fn main() anyerror!void {
     c.CBroker_stop(b);
     c.CBroker_wait(b);
     c.CBroker_delete(b);
+}
+
+pub fn createWorker(id: *c.CUuid) ?*c.CWorker {
+    _ = id;
+    return null;
 }
