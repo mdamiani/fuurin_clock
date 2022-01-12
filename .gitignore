@@ -1,3 +1,6 @@
 fuurin/build
 zig-cache/
 zig-out/
+
+Session.vim
+tags
