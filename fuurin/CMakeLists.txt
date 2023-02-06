@@ -22,6 +22,7 @@ ExternalProject_Add(fuurin
 
     CMAKE_ARGS
         -D USE_GNUINSTALLDIRS=OFF
+        -D BUILD_SHARED=OFF
         -D CMAKE_INSTALL_PREFIX=<INSTALL_DIR>
         -D CMAKE_BUILD_TYPE=RelWithDebInfo
         -D CMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/cross_zig.cmake

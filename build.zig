@@ -26,8 +26,8 @@ pub fn build(b: *std.build.Builder) !void {
     exe.setBuildMode(mode);
 
     // Add fuurin lib
-    exe.addIncludeDir("fuurin/build/install/include");
-    exe.addLibPath("fuurin/build/install/lib");
+    exe.addIncludePath("fuurin/build/install/include");
+    exe.addLibraryPath("fuurin/build/install/lib");
     exe.linkSystemLibrary("c");
     exe.linkSystemLibrary("c++");
     exe.linkSystemLibrary("fuurin_static");
