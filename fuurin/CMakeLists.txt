@@ -17,7 +17,7 @@ include(ExternalProject)
 
 ExternalProject_Add(fuurin
     GIT_REPOSITORY    https://github.com/mdamiani/fuurin.git
-    GIT_TAG           feature/bindings-c
+    GIT_TAG           master
     INSTALL_DIR       "${CMAKE_BINARY_DIR}/install"
 
     CMAKE_ARGS
