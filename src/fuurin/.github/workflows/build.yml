@@ -1,0 +1,69 @@
+name: build
+
+on: [push]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Packages
+      shell: bash
+      run: sudo apt install -y
+        doxygen
+        graphviz
+        protobuf-compiler
+        protobuf-compiler-grpc
+        libprotobuf-dev
+        libgrpc-dev
+        libgrpc++-dev
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake $GITHUB_WORKSPACE
+        -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        -DBUILD_TESTS=1
+        -DBUILD_EXAMPLES=1
+        -DENABLE_ASAN=1
+        -DENABLE_COVERAGE=1
+        -DENABLE_DOXYGEN=1
+        -DENABLE_SERVICE_GRPC=1
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE -j$(nproc)
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: CTEST_OUTPUT_ON_FAILURE=1 ctest -v
+
+    - name: Coverage
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: bash <(curl -s https://codecov.io/bash)
+
+    - name: Doxygen
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --target doxygen
+
+#    - name: Artifacts
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: artifacts
+#        path: |
+#          build/doxygen
+#        retention-days: 5
+
